@@ -1,0 +1,10 @@
+tools/
+**/bin/
+**/obj/
+dist/
+.vs/
+.env
+.env.*
+!.env.example
+*.user
+*.suo

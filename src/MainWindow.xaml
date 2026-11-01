@@ -1,0 +1,67 @@
+<Window x:Class="FreeTapes.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Free Tapes" Width="1280" Height="860" MinWidth="1080" MinHeight="650" Background="#11151D" Foreground="#E4E7ED">
+ <Window.Resources>
+  <Style x:Key="SongRow" TargetType="ListBoxItem"><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="5"/></Style>
+ </Window.Resources>
+ <Grid Margin="28"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="320"/></Grid.ColumnDefinitions>
+ <Grid Margin="0,0,24,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+ <StackPanel><TextBlock Text="FREE TAPES" FontSize="32" FontWeight="Bold"/><TextBlock Text="Your soundtrack. Your local channel." Margin="0,8,0,22" Foreground="#9BA6B9"/></StackPanel>
+ <StackPanel Grid.Row="1"><TextBox x:Name="Url" Padding="10" ToolTip="Paste a YouTube video URL"/>
+ <WrapPanel><Button x:Name="StreamButton" Content="Stream YouTube" Click="StreamYouTube"/><Button x:Name="DownloadButton" Content="Save YouTube → MP3" Click="Download"/><Button Content="Import audio" Click="Import"/><Button x:Name="CancelButton" Content="Cancel save" Click="CancelDownload" IsEnabled="False"/></WrapPanel>
+ <Border BorderBrush="#354056" BorderThickness="1" Padding="10" Margin="0,8,0,0"><StackPanel>
+  <TextBlock Text="MP3 trim • downloads and saved songs only" FontWeight="Bold"/>
+  <WrapPanel Margin="0,6,0,0"><TextBlock Text="Start" VerticalAlignment="Center"/><TextBox x:Name="TrimStart" Text="0:00" Width="75" Padding="6" Margin="8,0,12,0" ToolTip="Seconds, mm:ss or hh:mm:ss"/><TextBlock Text="End" VerticalAlignment="Center"/><TextBox x:Name="TrimEnd" Width="75" Padding="6" Margin="8,0,8,0" ToolTip="Leave blank for the end of the song"/><Button x:Name="TrimButton" Content="Trim selected song" Click="TrimSelected" Padding="8,5"/></WrapPanel>
+  <TextBlock Text="Blank end = full length. Streaming always plays the full track." Foreground="#9BA6B9" TextWrapping="Wrap" Margin="0,6,0,0"/>
+ </StackPanel></Border></StackPanel>
+ <Grid Grid.Row="2" Margin="0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <TextBlock x:Name="PlaylistHeading" Text="PLAYLIST" FontWeight="Bold" Margin="0,0,0,8"/>
+  <TextBlock x:Name="OutsideHeading" Grid.Column="2" Text="NOT IN PLAYLIST" FontWeight="Bold" Margin="0,0,0,8"/>
+  <ListBox x:Name="Library" Grid.Row="1" Background="#1C2330" Foreground="White" ItemContainerStyle="{StaticResource SongRow}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" MouseDoubleClick="PlaylistDoubleClick" SelectionChanged="PlaylistSelectionChanged"><ListBox.ItemTemplate><DataTemplate>
+   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="35"/><ColumnDefinition Width="57"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip="{Binding Title}"/>
+    <Button Grid.Column="1" Content="×" FontSize="16" Padding="4,1" Margin="2" Tag="{Binding}" Click="RemoveQueuedSong" ToolTip="Remove from playlist; keep the saved file" AutomationProperties.Name="Remove from playlist"/>
+    <Button Grid.Column="2" Content="Delete" Padding="4" Margin="2" Tag="{Binding}" Click="DeleteSong" ToolTip="Delete this song's original and trimmed copies"/>
+    <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,6,0,2"><Grid.ColumnDefinitions><ColumnDefinition Width="43"/><ColumnDefinition Width="*"/><ColumnDefinition Width="45"/></Grid.ColumnDefinitions>
+     <TextBlock Text="Volume" FontSize="11" Foreground="#9BA6B9" VerticalAlignment="Center"/>
+     <Slider x:Name="SongVolume" Grid.Column="1" Minimum="1" Maximum="200" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding VolumePercent, Mode=OneWay}" Loaded="SongVolumeLoaded" Unloaded="SongVolumeUnloaded" ToolTip="Song volume • 1%–200%, combined with the main music volume" AutomationProperties.Name="Song volume"/>
+     <TextBlock Grid.Column="2" Text="{Binding ElementName=SongVolume, Path=Value, StringFormat={}{0:F0}%}" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+    </Grid>
+   </Grid>
+  </DataTemplate></ListBox.ItemTemplate></ListBox>
+  <ListBox x:Name="OutsideLibrary" Grid.Column="2" Grid.Row="1" Background="#1C2330" Foreground="White" ItemContainerStyle="{StaticResource SongRow}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="OutsideSelectionChanged"><ListBox.ItemTemplate><DataTemplate>
+   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="45"/><ColumnDefinition Width="57"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip="{Binding Title}"/>
+    <Button Grid.Column="1" Content="Add" Padding="4" Margin="2" Tag="{Binding}" Click="AddQueuedSong" ToolTip="Add to the end of the playlist"/>
+    <Button Grid.Column="2" Content="Delete" Padding="4" Margin="2" Tag="{Binding}" Click="DeleteSong" ToolTip="Delete this song's original and trimmed copies"/>
+    <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,6,0,2"><Grid.ColumnDefinitions><ColumnDefinition Width="43"/><ColumnDefinition Width="*"/><ColumnDefinition Width="45"/></Grid.ColumnDefinitions>
+     <TextBlock Text="Volume" FontSize="11" Foreground="#9BA6B9" VerticalAlignment="Center"/>
+     <Slider x:Name="SongVolume" Grid.Column="1" Minimum="1" Maximum="200" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding VolumePercent, Mode=OneWay}" Loaded="SongVolumeLoaded" Unloaded="SongVolumeUnloaded" ToolTip="Song volume • 1%–200%, combined with the main music volume" AutomationProperties.Name="Song volume"/>
+     <TextBlock Grid.Column="2" Text="{Binding ElementName=SongVolume, Path=Value, StringFormat={}{0:F0}%}" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+    </Grid>
+   </Grid>
+  </DataTemplate></ListBox.ItemTemplate></ListBox>
+ </Grid>
+ <StackPanel Grid.Row="3"><TextBlock x:Name="NowPlaying" Text="Choose a tape to play" FontSize="18" TextTrimming="CharacterEllipsis"/><WrapPanel><Button x:Name="PlayPauseButton" Content="▶ Play" Click="TogglePlayback" ToolTip="Play, pause, or resume the current track"/><Button Content="Stop" Click="Stop"/><Button Content="Next song ▶|" Click="Next"/></WrapPanel><TextBlock x:Name="Status" Text="Choose your audio devices, then start routing." TextWrapping="Wrap" Margin="0,12,0,0"/></StackPanel>
+ </Grid>
+ <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"><StackPanel><TextBlock Text="AUDIO ROUTING" FontSize="18" FontWeight="Bold"/><TextBlock Text="Your physical microphone" Margin="0,18,0,0"/><ComboBox x:Name="Mic" DisplayMemberPath="Name"/><TextBlock Text="Game feed • choose CABLE Input"/><ComboBox x:Name="Output" DisplayMemberPath="Name"/><TextBlock Text="Hear music through"/><ComboBox x:Name="Monitor" DisplayMemberPath="Name"/><WrapPanel><Button Content="Refresh" Click="Refresh"/><Button Content="Start routing" Click="StartRouting"/><Button Content="Disconnect" Click="Disconnect"/></WrapPanel>
+ <TextBlock Text="Music sent to game (%)" Margin="0,20,0,0"/><TextBlock Text="{Binding ElementName=MusicVolume, Path=Value, StringFormat={}{0:F0}%}"/><Slider x:Name="MusicVolume" Minimum="1" Maximum="200" Value="65" TickFrequency="1" IsSnapToTickEnabled="True"/>
+ <TextBlock Text="Music in my headphones (%)" Margin="0,12,0,0"/><TextBlock Text="{Binding ElementName=HeadphoneVolume, Path=Value, StringFormat={}{0:F0}%}"/><Slider x:Name="HeadphoneVolume" Minimum="1" Maximum="200" Value="65" TickFrequency="1" IsSnapToTickEnabled="True"/>
+ <TextBlock Text="Microphone gain" Margin="0,12,0,0"/><TextBlock Text="{Binding ElementName=MicVolume, Path=Value, StringFormat={}{0:F0}%}"/><Slider x:Name="MicVolume" Minimum="1" Maximum="200" Value="100" TickFrequency="1" IsSnapToTickEnabled="True"/><TextBlock Text="Music level while speaking" Margin="0,12,0,0"/><Slider x:Name="DuckVolume" Minimum="0" Maximum="1" Value="0.15"/>
+ <TextBlock Text="Hold to speak + duck music" Margin="0,20,0,0"/>
+ <WrapPanel Margin="0,6,0,8"><TextBlock x:Name="TalkBindingLabel" Text="V" VerticalAlignment="Center" Margin="0,0,12,0"/><Button x:Name="ChangeBindButton" Content="Change bind" Click="ChangeBind"/></WrapPanel>
+ <TextBlock x:Name="BindPrompt" Text="Keyboard or mouse button" TextWrapping="Wrap" Foreground="#9BA6B9" Margin="0,0,0,8"/>
+ <TextBlock x:Name="TalkState" Text="MIC MUTED" FontWeight="Bold"/>
+ <CheckBox x:Name="AutoProximity" Content="Automatically hold proximity key K" IsChecked="True" Foreground="#E4E7ED" Margin="0,16,0,4"/>
+ <TextBlock x:Name="ProximityState" Text="K released • waiting for WARDOGS" TextWrapping="Wrap" Foreground="#9BA6B9"/>
+ <TextBlock Text="Playback bindings" FontSize="16" FontWeight="Bold" Margin="0,20,0,6"/>
+ <ItemsControl x:Name="TransportBindings"><ItemsControl.ItemTemplate><DataTemplate>
+  <Grid Margin="0,2"><Grid.ColumnDefinitions><ColumnDefinition Width="80"/><ColumnDefinition Width="*"/><ColumnDefinition Width="75"/><ColumnDefinition Width="55"/></Grid.ColumnDefinitions>
+   <TextBlock Text="{Binding Caption}" VerticalAlignment="Center"/>
+   <TextBlock Grid.Column="1" Text="{Binding Label}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Label}"/>
+   <Button Grid.Column="2" Content="Bind" Padding="8,5" Margin="2" Tag="{Binding Action}" Click="BindPlayback"/>
+   <Button Grid.Column="3" Content="Clear" Padding="6,5" Margin="2" Tag="{Binding Action}" Click="ClearPlayback"/>
+  </Grid>
+ </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+ <TextBlock x:Name="PlaybackPrompt" Text="Click Bind, then press a key or mouse button. Playback shortcuts work while WARDOGS is focused. Next follows library order and wraps to the first song." TextWrapping="Wrap" Foreground="#9BA6B9" Margin="0,8,0,0"/>
+ <TextBlock Margin="0,22,0,0" TextWrapping="Wrap" Foreground="#9BA6B9" Text="In WARDOGS, select CABLE Output as your microphone and keep proximity PTT bound to K. With WARDOGS focused, K is held during music or while you hold your talk binding. Use headphones to avoid feedback."/>
+ </StackPanel></ScrollViewer></Grid>
+</Window>
