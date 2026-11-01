@@ -8,6 +8,8 @@ A Windows desktop music library and microphone mixer for proximity chat.
 
 Open `dist/FreeTapes/FreeTapes.exe`. The default build uses the .NET 10 Desktop Runtime. `./Build.ps1 -SelfContained` builds a version with its own runtime.
 
+**Each time you use Free Tapes, reselect the virtual audio cable, even if it is already shown as selected.** Choose **CABLE Input** as the game feed in Free Tapes and **CABLE Output** as the microphone in WARDOGS, then apply the game setting before starting playback.
+
 1. Install [VB-CABLE](https://vb-audio.com/Cable/) using its administrator installer, then reboot.
 2. Run `./Setup-Tools.ps1` from the published app folder to download yt-dlp, FFmpeg, and Deno. Only download content you have permission to use. YouTube restrictions can prevent imports; any link is not guaranteed.
 3. Open Free Tapes. Select your physical microphone, **CABLE Input** as the game feed, and your headphones under **Hear music through**. Click **Start routing**.
